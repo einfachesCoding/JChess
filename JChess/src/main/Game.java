@@ -14,13 +14,32 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int[] choosedFigure = new int[2];
+	Figure choosedFigure = null;
+	int[] choosedFigurePosition = new int[2];
 	JLabel[][] fields = new JLabel[8][8];
 	int xStart, yStart;
 	JPanel Panel;
 	JButton Button = new JButton("Starten");
-	Player p1,p2;
+	Player p1 = new Player(new Color(226, 196, 126));
+	Player p2 = new Player(new Color(51, 51, 51));
 	boolean player1 = true;
+	Figure[][] startField = {{p1.Rook1, p1.Knight1, p1.Bishop1, p1.Queen, p1.King, p1.Bishop2, p1.Knight2, p1.Rook2}, 
+			{p1.Pawn1, p1.Pawn2, p1.Pawn3, p1.Pawn4, p1.Pawn5, p1.Pawn6, p1.Pawn7, p1.Pawn8},
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{p2.Pawn1, p2.Pawn2, p2.Pawn3, p2.Pawn4, p2.Pawn5, p2.Pawn6, p2.Pawn7, p2.Pawn8},
+			{p2.Rook1, p2.Knight1, p2.Bishop1, p2.Queen, p2.King, p2.Bishop2, p2.Knight2, p2.Rook2}};
+	Field field;
+	int[][] fieldColor =  {{1,0,1,0,1,0,1,0},
+			{0,1,0,1,0,1,0,1},
+			{1,0,1,0,1,0,1,0},
+			{0,1,0,1,0,1,0,1},
+			{1,0,1,0,1,0,1,0},
+			{0,1,0,1,0,1,0,1},
+			{1,0,1,0,1,0,1,0},
+			{0,1,0,1,0,1,0,1}};//0 = black 1 = white
 	
 	public Game() {
 		Panel = new JPanel(null);
@@ -45,14 +64,6 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		int[][] field =  {{1,0,1,0,1,0,1,0},
-				{0,1,0,1,0,1,0,1},
-				{1,0,1,0,1,0,1,0},
-				{0,1,0,1,0,1,0,1},
-				{1,0,1,0,1,0,1,0},
-				{0,1,0,1,0,1,0,1},
-				{1,0,1,0,1,0,1,0},
-				{0,1,0,1,0,1,0,1}};//0 = black 1 = white
 		Button.setVisible(false);
 		xStart = getWidth() / 2 -400;
 		yStart = getHeight() / 2 -400;
@@ -61,10 +72,10 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 				fields[x][y] = new JLabel("",SwingConstants.CENTER);
 				fields[x][y].setFont(new Font("Arial", Font.BOLD, 50));
 				fields[x][y].setOpaque(true);
-				if(field[x][y] == 0) {
+				if(fieldColor[x][y] == 0) {
 					fields[x][y].setBackground(Color.black);
 				}
-				if(field[x][y] == 1) {
+				if(fieldColor[x][y] == 1) {
 					fields[x][y].setBackground(new Color(132, 112, 28));
 				}
 				fields[x][y].setBounds(xStart + x * 100, yStart + y*100, 100, 100);
@@ -72,41 +83,42 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 			}
 		}
 		setContentPane(Panel);
-		p1 = new Player(new Color(226, 196, 126));
-		p2 = new Player(new Color(51, 51, 51));
-		placeFigures(p1.figures, false);
-		placeFigures(p2.figures, true);
-		choosedFigure[0] = -1;
-		choosedFigure[1] = -1;
+		field = new Field();
+		placeFigures();
 		addMouseListener(this);
 	}
+	
+	private void repaintField() {
+		for(int y = 0; y < 8; y++) {
+			for(int x = 0; x < 8; x++) {
+				if(fieldColor[x][y] == 0) {
+					fields[x][y].setBackground(Color.black);
+				}
+				if(fieldColor[x][y] == 1) {
+					fields[x][y].setBackground(new Color(132, 112, 28));
+				}
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 * @param figures all figures that have to be placed
 	 * @param top player two is on the top, player one goes first
 	 */
-	private void placeFigures(Figure[] figures, boolean top) {
-		if(top) {
-			int y = 0;
-			for(int x = 0; x < 8; x++){
-				fields[x][y].setForeground(p2.playColor);
-				fields[x][y].setText(figures[x].displayName);
-			}
-			y = 1;
-			for(int x = 0; x < 8; x++){
-				fields[x][y].setForeground(p2.playColor);
-				fields[x][y].setText(figures[x+8].displayName);
-			}
-		}else {
-			int y = 6;			
-			for(int x = 0; x < 8; x++){
-				fields[x][y].setForeground(p1.playColor);
-				fields[x][y].setText(figures[x+8].displayName);
-			}
-			y = 7;
+	private void placeFigures() {	
+		for(int y = 0; y < 8; y++) {
 			for(int x = 0; x < 8; x++) {
-				fields[x][y].setForeground(p1.playColor);
-				fields[x][y].setText(figures[x].displayName);
+				if(startField[y][x]!= null) {
+					if(y < 2) {
+						fields[x][y].setForeground(p2.playColor);
+					}
+					if(y > 5) {
+						fields[x][y].setForeground(p1.playColor);
+					} 
+					fields[x][y].setText(startField[y][x].displayName);
+					field.setFigure(x, y, startField[y][x]);
+				}
 			}
 		}
 	}
@@ -119,38 +131,60 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}
 	}
 	
-	private boolean moveAllowed(Figure f, int x, int y, Player p) {
-		
+	private boolean myFigure(int x, int y, Player p) {
+		if(!atWall(x, y)) {
+			if(fields[x][y].getForeground() == p.playColor) {
+				return true;
+			}
+		}
 		return false;
 	}
-	
-	private boolean myFigure(int x, int y, Player p) {
-		if(fields[x][y].getForeground() == p.playColor) {
-			return true;
-		}else {
-			return false;
-		}
-	}
-	
-	private void move(int xOld, int yOld, int xNew, int yNew, String displayName, Player p) {
+	/**
+	 * 
+	 * @param xOld old xPosition
+	 * @param yOld old yPosition
+	 * @param xNew new xPosition	
+	 * @param yNew new yPosition
+	 * @param displayName name the figure is displayed
+	 * @param p the player where the figure belongs to
+	 * moves a figure from an old position to a new position
+	 * 
+	 */
+	private void move(int xOld, int yOld, int xNew, int yNew, Player p) {
 		if(xOld == xNew && yOld == yNew) {
 			return;
 		}
-		fields[xOld][yOld].setText("");
 		fields[xOld][yOld].setForeground(Color.black); //needs to be there for the funktion myFigure
 		fields[xNew][yNew].setForeground(p.playColor);
-		fields[xNew][yNew].setText(displayName);
-		choosedFigure[0] = -1;
-		choosedFigure[1] = -1;
+		fields[xNew][yNew].setText(fields[xOld][yOld].getText());
+		fields[xOld][yOld].setText("");
+		field.moveFigure(xOld, yOld, xNew, yNew);
+		if(player1) {
+			player1 = false;
+		}else {
+			player1 = true;
+		}
+		choosedFigure = null;
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		int x = e.getX();
 		int y = e.getY();
 		int[] i = inField(x, y);
-		checkKlick(i[0], i[1], p1);
+		if(player1) {
+			checkKlick(i[0], i[1], p1);
+		}else {
+			checkKlick(i[0], i[1], p2);
+		}
 	}
+	
+	/**
+	 * 
+	 * @param xPos x position off the mouse click
+	 * @param yPos y position off the mouse click
+	 * @return i[0] = x Position of the field i[1] = y Position of the field
+	 */
 	private int[] inField(int xPos,int yPos) {
 		int[] i = new int[2];
 		for(int y = 0; y < 8; y++) {
@@ -167,11 +201,164 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	}
 	
 	private void checkKlick(int x, int y, Player p) {
-		if(choosedFigure[0] == -1 && !fieldEmpty(x, y) && myFigure(x, y, p)) {
-			choosedFigure[0] = x;
-			choosedFigure[1] = y;
-		}else if(choosedFigure[0] != -1){
-			move(choosedFigure[0], choosedFigure[1], x, y, fields[choosedFigure[0]][choosedFigure[1]].getText(), p);
+		repaintField();
+		if(!fieldEmpty(x, y) && myFigure(x, y, p)) {
+			choosedFigure = field.getFigure(x, y);
+			choosedFigurePosition[0] = x;
+			choosedFigurePosition[1] = y;
+			markFields(choosedFigure, x, y, p);
+		}if(choosedFigure != null && !myFigure(x, y, p)) {
+			move(choosedFigurePosition[0], choosedFigurePosition[1], x, y, p);
+		}
+	}
+	
+	private void markFields(Figure f, int x,int y, Player p) {
+		if(f.canCross) {
+			markCross(x,y, p);
+		}
+		if(f.canJump) {
+			markJump(x,y,p);
+		}
+	}
+	
+	private boolean atWall(int x, int y) {
+		if(0 > x || x >= 8 || 0 > y || y >= 8) {
+			return true;
+		}
+		return false;
+	}
+
+	private void markJump(int x, int y, Player p) {
+		int xPos = x;
+		int yPos = y;
+		if(!atWall(xPos-2, yPos+1) && !myFigure(xPos-2, yPos+1, p)) {
+			xPos = xPos-2;
+			yPos++;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos-2, yPos-1)&& !myFigure(xPos-2, yPos-1, p)) {
+			xPos = xPos-2;
+			yPos--;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos+2, yPos+1) && !myFigure(xPos+2, yPos+1, p)) {
+			xPos = xPos+2;
+			yPos++;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos+2, yPos-1) && !myFigure(xPos+2, yPos-1, p)) {
+			xPos = xPos+2;
+			yPos--;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos+1, yPos-2) && !myFigure(xPos+1, yPos-2, p)) {
+			xPos++;
+			yPos = yPos-2;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos-1, yPos-2)&& !myFigure(xPos-1, yPos-2, p)) {
+			xPos--;
+			yPos = yPos-2;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos-1, yPos+2)&& !myFigure(xPos-1, yPos+2, p)) {
+			xPos--;
+			yPos = yPos+2;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+		xPos = x;
+		yPos = y;
+		if(!atWall(xPos+1, yPos+2)&& !myFigure(xPos+1, yPos+2, p)) {
+			xPos++;
+			yPos = yPos+2;
+			fields[xPos][yPos].setBackground(Color.gray);
+		}
+	}
+
+	private void markCross(int x,int y, Player p) {
+		int xPos = x;
+		int yPos = y; 
+		while(xPos+1 <= 7 && yPos-1 >= 0) {
+			xPos++;
+			yPos--;
+			if(xPos!= x && yPos != y) {
+				if(!fieldEmpty(xPos, yPos)) {
+					if(myFigure(xPos, yPos, p)) {
+						break;
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+						break;
+					}
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}	
+			}
+		}
+	
+		while(xPos-1 >= 0 && yPos+1 <= 7) {
+			xPos--;
+			yPos++;
+			if(xPos!= x && yPos != y) {
+				if(!fieldEmpty(xPos, yPos)) {
+					if(myFigure(xPos, yPos, p)) {
+						break;
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+						break;
+					}
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}	
+			}
+		}
+		
+		xPos = x;
+		yPos = y;
+		while(xPos-1 >= 0 && yPos-1 >= 0) {
+			xPos--;
+			yPos--;
+			if(xPos!= x && yPos != y) {
+				if(!fieldEmpty(xPos, yPos)) {
+					if(myFigure(xPos, yPos, p)) {
+						break;
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+						break;
+					}
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}	
+			}
+		}
+		xPos = x;
+		yPos = y;
+		while(xPos+1 <= 7 && yPos+1 <= 7) {
+			xPos++;
+			yPos++;
+			if(xPos!= x && yPos != y) {
+				if(!fieldEmpty(xPos, yPos)) {
+					if(myFigure(xPos, yPos, p)) {
+						break;
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+						break;
+					}
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}	
+			}
 		}
 	}
 
