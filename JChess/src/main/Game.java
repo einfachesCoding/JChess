@@ -222,8 +222,30 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		if(f.canLine) {
 			markLine(x,y,p);
 		}
+		if(f.canSideStep) {
+			markSideStep(x,y,p);
+		}
 	}
 	
+	private void markSideStep(int x, int y, Player p) {
+		if(p == p1) {
+			if(!fieldEmpty(x+1, y-1) && !atWall(x+1, y-1) && !myFigure(x+1, y-1, p)) {
+				fields[x+1][y-1].setBackground(Color.gray);
+			}
+			if(!fieldEmpty(x-1, y-1) && !atWall(x-1, y+1) && !myFigure(x-1, y+1, p)) {
+				fields[x-1][y-1].setBackground(Color.gray);
+			}
+		}
+		if(p == p2) {
+			if(!fieldEmpty(x+1, y+1) && !atWall(x+1, y+1) && !myFigure(x+1, y+1, p)) {
+				fields[x+1][y+1].setBackground(Color.gray);
+			}
+			if(!fieldEmpty(x-1, y+1) && !atWall(x-1, y+1) && !myFigure(x-1, y+1, p)) {
+				fields[x-1][y+1].setBackground(Color.gray);
+			}
+		}
+	}
+
 	private void markLine(int x, int y, Player p) {
 		int xPos = x;
 		int yPos = y;
