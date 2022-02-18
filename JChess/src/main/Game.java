@@ -219,8 +219,74 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		if(f.canJump) {
 			markJump(x,y,p);
 		}
+		if(f.canLine) {
+			markLine(x,y,p);
+		}
 	}
 	
+	private void markLine(int x, int y, Player p) {
+		int xPos = x;
+		int yPos = y;
+		while(xPos+1 <= 7) {
+			xPos++;
+			if(!fieldEmpty(xPos, yPos)) {
+				if(myFigure(xPos, yPos, p)) {
+					break;
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+					break;
+				}
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
+		}
+		xPos = x;
+		yPos = y;
+		while(xPos-1 >= 0) {
+			xPos--;
+			if(!fieldEmpty(xPos, yPos)) {
+				if(myFigure(xPos, yPos, p)) {
+					break;
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+					break;
+				}
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
+		}
+		xPos = x;
+		yPos = y;
+		while(yPos+1 <= 7) {
+			yPos++;
+			if(!fieldEmpty(xPos, yPos)) {
+				if(myFigure(xPos, yPos, p)) {
+					break;
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+					break;
+				}
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
+		}
+		xPos = x;
+		yPos = y;
+		while(yPos-1 >= 0) {
+			yPos--;
+			if(!fieldEmpty(xPos, yPos)) {
+				if(myFigure(xPos, yPos, p)) {
+					break;
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+					break;
+				}
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
+		}
+	}
+
 	private boolean atWall(int x, int y) {
 		if(0 > x || x >= 8 || 0 > y || y >= 8) {
 			return true;
