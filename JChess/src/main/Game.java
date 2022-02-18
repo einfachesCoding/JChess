@@ -23,14 +23,14 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	Player p1 = new Player(new Color(226, 196, 126));
 	Player p2 = new Player(new Color(51, 51, 51));
 	boolean player1 = true;
-	Figure[][] startField = {{p1.Rook1, p1.Knight1, p1.Bishop1, p1.Queen, p1.King, p1.Bishop2, p1.Knight2, p1.Rook2}, 
-			{p1.Pawn1, p1.Pawn2, p1.Pawn3, p1.Pawn4, p1.Pawn5, p1.Pawn6, p1.Pawn7, p1.Pawn8},
-			{null,null,null,null,null,null,null,null},
-			{null,null,null,null,null,null,null,null},
-			{null,null,null,null,null,null,null,null},
-			{null,null,null,null,null,null,null,null},
+	Figure[][] startField = {{p2.Rook1, p2.Knight1, p2.Bishop1, p2.Queen, p2.King, p2.Bishop2, p2.Knight2, p2.Rook2}, 
 			{p2.Pawn1, p2.Pawn2, p2.Pawn3, p2.Pawn4, p2.Pawn5, p2.Pawn6, p2.Pawn7, p2.Pawn8},
-			{p2.Rook1, p2.Knight1, p2.Bishop1, p2.Queen, p2.King, p2.Bishop2, p2.Knight2, p2.Rook2}};
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{null,null,null,null,null,null,null,null},
+			{p1.Pawn1, p1.Pawn2, p1.Pawn3, p1.Pawn4, p1.Pawn5, p1.Pawn6, p1.Pawn7, p1.Pawn8},
+			{p1.Rook1, p1.Knight1, p1.Bishop1, p1.Queen, p1.King, p1.Bishop2, p1.Knight1, p1.Rook2}};
 	Field field;
 	int[][] fieldColor =  {{1,0,1,0,1,0,1,0},
 			{0,1,0,1,0,1,0,1},
@@ -150,9 +150,12 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	 * moves a figure from an old position to a new position
 	 * 
 	 */
-	private void move(int xOld, int yOld, int xNew, int yNew, Player p) {
+	private void move(int xOld, int yOld, int xNew, int yNew, Player p,Figure f) {
 		if(xOld == xNew && yOld == yNew) {
 			return;
+		}
+		if(f.firstTurn) {
+			f.firstTurn = false;
 		}
 		fields[xOld][yOld].setForeground(Color.black); //needs to be there for the funktion myFigure
 		fields[xNew][yNew].setForeground(p.playColor);
@@ -164,6 +167,7 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}else {
 			player1 = true;
 		}
+		repaintField();
 		choosedFigure = null;
 	}
 	
@@ -201,14 +205,15 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	}
 	
 	private void checkKlick(int x, int y, Player p) {
-		repaintField();
 		if(!fieldEmpty(x, y) && myFigure(x, y, p)) {
+			repaintField();
 			choosedFigure = field.getFigure(x, y);
 			choosedFigurePosition[0] = x;
 			choosedFigurePosition[1] = y;
+			fields[x][y].setBackground(Color.darkGray);
 			markFields(choosedFigure, x, y, p);
-		}if(choosedFigure != null && !myFigure(x, y, p)) {
-			move(choosedFigurePosition[0], choosedFigurePosition[1], x, y, p);
+		}if(choosedFigure != null && !myFigure(x, y, p) && fields[x][y].getBackground() == Color.gray) {
+			move(choosedFigurePosition[0], choosedFigurePosition[1], x, y, p, choosedFigure);
 		}
 	}
 	
@@ -225,22 +230,74 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		if(f.canSideStep) {
 			markSideStep(x,y,p);
 		}
+		if(f.canStep) {
+			markStep(x,y,p, f.firstTurn);
+		}
+		if(f.canSurround) {
+			markSurround(x,y,p);
+		}
 	}
 	
+	private void markSurround(int x, int y, Player p) {
+		if(!atWall(x, y-1) && !myFigure(x, y-1, p)) {
+			fields[x][y-1].setBackground(Color.gray);
+		}
+		if(!atWall(x+1, y-1) && !myFigure(x+1, y-1, p)) {
+			fields[x+1][y-1].setBackground(Color.gray);
+		}
+		if(!atWall(x-1, y-1)&& !myFigure(x-1, y-1, p)) {
+			fields[x-1][y-1].setBackground(Color.gray);
+		}
+		if(!atWall(x+1, y)&& !myFigure(x+1, y, p)) {
+			fields[x+1][y].setBackground(Color.gray);
+		}
+		if(!atWall(x-1, y)&& !myFigure(x-1, y, p)) {
+			fields[x-1][y].setBackground(Color.gray);
+		}
+		if(!atWall(x, y+1)&& !myFigure(x, y+1, p)) {
+			fields[x][y+1].setBackground(Color.gray);
+		}
+		if(!atWall(x+1, y+1)&& !myFigure(x+1, y+1, p)) {
+			fields[x+1][y+1].setBackground(Color.gray);
+		}
+		if(!atWall(x-1, y+1)&& !myFigure(x-1, y+1, p)) {
+			fields[x-1][y+1].setBackground(Color.gray);
+		}
+	}
+
+	private void markStep(int x, int y, Player p, boolean firstTurn) {
+		if(p == p1) {
+			if(fieldEmpty(x, y-1)) {
+				fields[x][y-1].setBackground(Color.gray);
+			}	
+			if(firstTurn && fieldEmpty(x, y-2)) {
+				fields[x][y-2].setBackground(Color.gray);
+			}
+		}
+		if(p == p2) {
+			if(fieldEmpty(x, y+1)) {
+				fields[x][y+1].setBackground(Color.gray);
+			}
+			if(firstTurn && fieldEmpty(x, y+2)) {
+				fields[x][y+2].setBackground(Color.gray);
+			}
+		}
+	}
+
 	private void markSideStep(int x, int y, Player p) {
 		if(p == p1) {
-			if(!fieldEmpty(x+1, y-1) && !atWall(x+1, y-1) && !myFigure(x+1, y-1, p)) {
+			if(!atWall(x+1, y-1) &&!fieldEmpty(x+1, y-1) && !myFigure(x+1, y-1, p)) {
 				fields[x+1][y-1].setBackground(Color.gray);
 			}
-			if(!fieldEmpty(x-1, y-1) && !atWall(x-1, y+1) && !myFigure(x-1, y+1, p)) {
+			if(!atWall(x-1, y-1) &&!fieldEmpty(x-1, y-1) && !myFigure(x-1, y-1, p)) {
 				fields[x-1][y-1].setBackground(Color.gray);
 			}
 		}
 		if(p == p2) {
-			if(!fieldEmpty(x+1, y+1) && !atWall(x+1, y+1) && !myFigure(x+1, y+1, p)) {
+			if(!atWall(x+1, y+1) && !fieldEmpty(x+1, y+1) && !myFigure(x+1, y+1, p)) {
 				fields[x+1][y+1].setBackground(Color.gray);
 			}
-			if(!fieldEmpty(x-1, y+1) && !atWall(x-1, y+1) && !myFigure(x-1, y+1, p)) {
+			if(!atWall(x-1, y+1) &&!fieldEmpty(x-1, y+1) && !myFigure(x-1, y+1, p)) {
 				fields[x-1][y+1].setBackground(Color.gray);
 			}
 		}

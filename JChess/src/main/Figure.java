@@ -2,6 +2,7 @@ package main;
 
 public class Figure {
 	boolean canStep, canSideStep, canLine, canJump, canCross, canSurround;
+	boolean firstTurn = true;
 	String displayName;
 	/**
 	 * 
