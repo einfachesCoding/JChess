@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -40,6 +41,7 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 			{0,1,0,1,0,1,0,1},
 			{1,0,1,0,1,0,1,0},
 			{0,1,0,1,0,1,0,1}};//0 = black 1 = white
+	ArrayList<int[]> markedFields = new ArrayList<>();
 	
 	public Game() {
 		Panel = new JPanel(null);
@@ -169,6 +171,12 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}
 		repaintField();
 		choosedFigure = null;
+		if(p == p1) {
+			checkChess(p2);
+		}else {
+			checkChess(p1);
+		}
+		repaintField();
 	}
 	
 	@Override
@@ -217,18 +225,62 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}
 	}
 	
+	private void checkChess(Player p) {
+		int[] kingPos = field.getPosition(p.King);
+		markCross(kingPos[0], kingPos[1], p, true);
+		getChess('C',p);
+		markedFields.clear();
+		markJump(kingPos[0], kingPos[1], p, true);
+		getChess('J',p);
+		markedFields.clear();
+		markLine(kingPos[0], kingPos[1], p, true);
+		getChess('L',p);
+		markedFields.clear();
+		markSideStep(kingPos[0], kingPos[1], p, true);
+		getChess('S',p);
+		markedFields.clear();
+	}
+	
+	private boolean getChess(char c, Player p) {
+		for(int nr = 0; nr < markedFields.size(); nr++) {
+			int[] i = markedFields.get(nr);
+			fields[i[0]][i[1]].setBackground(Color.gray);
+			if(!fieldEmpty(i[0], i[1]) && !myFigure(i[0], i[1], p)) {
+				fields[i[0]][i[1]].setBackground(Color.darkGray);
+				Figure f = field.getFigure(i[0], i[1]);
+				if(f.canCross && c == 'C') {
+					repaintField();
+					JOptionPane.showMessageDialog(null, "Schach");
+				}
+				if(f.canJump && c == 'J') {
+					repaintField();
+					JOptionPane.showMessageDialog(null, "Schach");
+				}
+				if(f.canLine && c == 'L') {
+					repaintField();
+					JOptionPane.showMessageDialog(null, "Schach");
+				}
+				if(f.canSideStep && c == 'S') {
+					repaintField();
+					JOptionPane.showMessageDialog(null, "Schach");
+				}
+			}
+		}
+		return false;
+	}
+
 	private void markFields(Figure f, int x,int y, Player p) {
 		if(f.canCross) {
-			markCross(x,y, p);
+			markCross(x,y, p, false);
 		}
 		if(f.canJump) {
-			markJump(x,y,p);
+			markJump(x,y,p, false);
 		}
 		if(f.canLine) {
-			markLine(x,y,p);
+			markLine(x,y,p, false);
 		}
 		if(f.canSideStep) {
-			markSideStep(x,y,p);
+			markSideStep(x,y,p, false);
 		}
 		if(f.canStep) {
 			markStep(x,y,p, f.firstTurn);
@@ -240,27 +292,43 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	
 	private void markSurround(int x, int y, Player p) {
 		if(!atWall(x, y-1) && !myFigure(x, y-1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x][y-1].setBackground(Color.gray);
 		}
 		if(!atWall(x+1, y-1) && !myFigure(x+1, y-1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x+1][y-1].setBackground(Color.gray);
 		}
 		if(!atWall(x-1, y-1)&& !myFigure(x-1, y-1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x-1][y-1].setBackground(Color.gray);
 		}
 		if(!atWall(x+1, y)&& !myFigure(x+1, y, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x+1][y].setBackground(Color.gray);
 		}
 		if(!atWall(x-1, y)&& !myFigure(x-1, y, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x-1][y].setBackground(Color.gray);
 		}
 		if(!atWall(x, y+1)&& !myFigure(x, y+1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x][y+1].setBackground(Color.gray);
 		}
 		if(!atWall(x+1, y+1)&& !myFigure(x+1, y+1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x+1][y+1].setBackground(Color.gray);
 		}
 		if(!atWall(x-1, y+1)&& !myFigure(x-1, y+1, p)) {
+			int[] i = {x,y};
+			markedFields.add(i);
 			fields[x-1][y+1].setBackground(Color.gray);
 		}
 	}
@@ -284,26 +352,46 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}
 	}
 
-	private void markSideStep(int x, int y, Player p) {
+	private void markSideStep(int x, int y, Player p, boolean save) {
 		if(p == p1) {
 			if(!atWall(x+1, y-1) &&!fieldEmpty(x+1, y-1) && !myFigure(x+1, y-1, p)) {
-				fields[x+1][y-1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x+1,y-1};
+					markedFields.add(i);
+				}else {
+					fields[x+1][y-1].setBackground(Color.gray);
+				}
 			}
 			if(!atWall(x-1, y-1) &&!fieldEmpty(x-1, y-1) && !myFigure(x-1, y-1, p)) {
-				fields[x-1][y-1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {-+1,y-1};
+					markedFields.add(i);
+				}else {
+					fields[x-1][y-1].setBackground(Color.gray);
+				}
 			}
 		}
 		if(p == p2) {
 			if(!atWall(x+1, y+1) && !fieldEmpty(x+1, y+1) && !myFigure(x+1, y+1, p)) {
-				fields[x+1][y+1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x+1,y+1};
+					markedFields.add(i);
+				}else {
+					fields[x+1][y+1].setBackground(Color.gray);
+				}
 			}
 			if(!atWall(x-1, y+1) &&!fieldEmpty(x-1, y+1) && !myFigure(x-1, y+1, p)) {
-				fields[x-1][y+1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x-1,y+1};
+					markedFields.add(i);
+				}else {
+					fields[x-1][y+1].setBackground(Color.gray);
+				}
 			}
 		}
 	}
 
-	private void markLine(int x, int y, Player p) {
+	private void markLine(int x, int y, Player p, boolean save) {
 		int xPos = x;
 		int yPos = y;
 		while(xPos+1 <= 7) {
@@ -312,11 +400,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 				if(myFigure(xPos, yPos, p)) {
 					break;
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}		
 					break;
 				}
 			}else {
-				fields[xPos][yPos].setBackground(Color.gray);
+				if(save) {
+					int[] i = {xPos,yPos};
+					markedFields.add(i);
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}
 			}
 		}
 		xPos = x;
@@ -327,11 +425,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 				if(myFigure(xPos, yPos, p)) {
 					break;
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}		
 					break;
 				}
 			}else {
-				fields[xPos][yPos].setBackground(Color.gray);
+				if(save) {
+					int[] i = {xPos,yPos};
+					markedFields.add(i);
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}
 			}
 		}
 		xPos = x;
@@ -342,11 +450,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 				if(myFigure(xPos, yPos, p)) {
 					break;
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}		
 					break;
 				}
 			}else {
-				fields[xPos][yPos].setBackground(Color.gray);
+				if(save) {
+					int[] i = {xPos,yPos};
+					markedFields.add(i);
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}
 			}
 		}
 		xPos = x;
@@ -357,11 +475,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 				if(myFigure(xPos, yPos, p)) {
 					break;
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}		
 					break;
 				}
 			}else {
-				fields[xPos][yPos].setBackground(Color.gray);
+				if(save) {
+					int[] i = {xPos,yPos};
+					markedFields.add(i);
+				}else {
+					fields[xPos][yPos].setBackground(Color.gray);
+				}
 			}
 		}
 	}
@@ -373,66 +501,106 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		return false;
 	}
 
-	private void markJump(int x, int y, Player p) {
+	private void markJump(int x, int y, Player p, boolean save) {
 		int xPos = x;
 		int yPos = y;
 		if(!atWall(xPos-2, yPos+1) && !myFigure(xPos-2, yPos+1, p)) {
 			xPos = xPos-2;
 			yPos++;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}	
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos-2, yPos-1)&& !myFigure(xPos-2, yPos-1, p)) {
 			xPos = xPos-2;
 			yPos--;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos+2, yPos+1) && !myFigure(xPos+2, yPos+1, p)) {
 			xPos = xPos+2;
 			yPos++;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos+2, yPos-1) && !myFigure(xPos+2, yPos-1, p)) {
 			xPos = xPos+2;
 			yPos--;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos+1, yPos-2) && !myFigure(xPos+1, yPos-2, p)) {
 			xPos++;
 			yPos = yPos-2;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos-1, yPos-2)&& !myFigure(xPos-1, yPos-2, p)) {
 			xPos--;
 			yPos = yPos-2;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos-1, yPos+2)&& !myFigure(xPos-1, yPos+2, p)) {
 			xPos--;
 			yPos = yPos+2;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 		xPos = x;
 		yPos = y;
 		if(!atWall(xPos+1, yPos+2)&& !myFigure(xPos+1, yPos+2, p)) {
 			xPos++;
 			yPos = yPos+2;
-			fields[xPos][yPos].setBackground(Color.gray);
+			if(save) {
+				int[] i = {xPos,yPos};
+				markedFields.add(i);
+			}else {
+				fields[xPos][yPos].setBackground(Color.gray);
+			}
 		}
 	}
 
-	private void markCross(int x,int y, Player p) {
+	private void markCross(int x,int y, Player p, boolean save) {
 		int xPos = x;
 		int yPos = y; 
 		while(xPos+1 <= 7 && yPos-1 >= 0) {
@@ -443,11 +611,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 					if(myFigure(xPos, yPos, p)) {
 						break;
 					}else {
-						fields[xPos][yPos].setBackground(Color.gray);
+						if(save) {
+							int[] i = {xPos,yPos};
+							markedFields.add(i);
+						}else {
+							fields[xPos][yPos].setBackground(Color.gray);
+						}
 						break;
 					}
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}				
 				}	
 			}
 		}
@@ -460,11 +638,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 					if(myFigure(xPos, yPos, p)) {
 						break;
 					}else {
-						fields[xPos][yPos].setBackground(Color.gray);
+						if(save) {
+							int[] i = {xPos,yPos};
+							markedFields.add(i);
+						}else {
+							fields[xPos][yPos].setBackground(Color.gray);
+						}
 						break;
 					}
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}				
 				}	
 			}
 		}
@@ -479,11 +667,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 					if(myFigure(xPos, yPos, p)) {
 						break;
 					}else {
-						fields[xPos][yPos].setBackground(Color.gray);
+						if(save) {
+							int[] i = {xPos,yPos};
+							markedFields.add(i);
+						}else {
+							fields[xPos][yPos].setBackground(Color.gray);
+						}
 						break;
 					}
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}				
 				}	
 			}
 		}
@@ -497,11 +695,21 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 					if(myFigure(xPos, yPos, p)) {
 						break;
 					}else {
-						fields[xPos][yPos].setBackground(Color.gray);
+						if(save) {
+							int[] i = {xPos,yPos};
+							markedFields.add(i);
+						}else {
+							fields[xPos][yPos].setBackground(Color.gray);
+						}
 						break;
 					}
 				}else {
-					fields[xPos][yPos].setBackground(Color.gray);
+					if(save) {
+						int[] i = {xPos,yPos};
+						markedFields.add(i);
+					}else {
+						fields[xPos][yPos].setBackground(Color.gray);
+					}				
 				}	
 			}
 		}
