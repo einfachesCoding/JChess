@@ -176,7 +176,6 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 		}else {
 			checkChess(p1);
 		}
-		repaintField();
 	}
 	
 	@Override
@@ -244,9 +243,7 @@ public class Game extends JFrame implements ActionListener, MouseListener{
 	private boolean getChess(char c, Player p) {
 		for(int nr = 0; nr < markedFields.size(); nr++) {
 			int[] i = markedFields.get(nr);
-			fields[i[0]][i[1]].setBackground(Color.gray);
 			if(!fieldEmpty(i[0], i[1]) && !myFigure(i[0], i[1], p)) {
-				fields[i[0]][i[1]].setBackground(Color.darkGray);
 				Figure f = field.getFigure(i[0], i[1]);
 				if(f.canCross && c == 'C') {
 					repaintField();
