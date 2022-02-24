@@ -1,9 +1,11 @@
-package main;
+package utils;
 
 public class Figure {
-	boolean canStep, canSideStep, canLine, canJump, canCross, canSurround;
-	boolean firstTurn = true;
-	String displayName;
+	public boolean canStep, canSideStep, canLine, canJump;
+	public boolean canCross;
+	public boolean canSurround;
+	public boolean firstTurn = true;
+	public String displayName;
 	/**
 	 * 
 	 * @param step figure can step one or two forward
