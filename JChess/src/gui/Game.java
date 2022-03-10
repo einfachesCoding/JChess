@@ -1,6 +1,8 @@
 package gui;
 
 import java.awt.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 import utils.*;
@@ -53,6 +55,12 @@ public class Game{
 		frame.setContentPane(Panel);
 	}
 	
+	public static void help(ArrayList<int[]> t) {
+		for(int i = 0; i < t.size(); i++) {
+			int[] j = t.get(i);
+			fields[j[0]][j[1]].setBackground(Color.gray);
+		}
+	}
 	
 	public static void repaintField() {
 		for(int y = 0; y < 8; y++) {
@@ -94,6 +102,11 @@ public class Game{
 				}
 			}
 		}
+	}
+	
+	public static void addFigure(Figure f, int x, int y, Player p) {
+		fields[x][y].setText(f.displayName);
+		fields[x][y].setForeground(p.playColor);
 	}
 	
 	public static void move(int xOld, int yOld, int xNew, int yNew, Player p) {

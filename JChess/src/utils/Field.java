@@ -2,6 +2,8 @@ package utils;
 
 import java.awt.Color;
 
+import gui.Game;
+
 public class Field {
 	public static Player p1 = new Player(new Color(226, 196, 126));
 	public static Player p2 = new Player(new Color(51, 51, 51));
@@ -31,6 +33,29 @@ public class Field {
 		return startField[y][x];
 	}
 	
+	public static void addFigure(Figure f, int x, int y) {
+		startField[y][x] = f;
+	}
+	
+	public static void reset() {
+		for(int y = 0; y < 8; y++) {
+			for(int x = 0; x < 8; x++) {
+				if(y == 0 || y == 1) {
+					startField[y][x] = p2Figures[x + (y * 8)];
+				}
+				else if(y == 6) {
+					startField[y][x] = p1Figures[x];
+				}
+				else if(y == 7) {
+					startField[y][x] = p1Figures[x+8];
+				}
+				else {
+					startField[y][x] = null;
+				}
+			}
+		}
+	}
+	
 	public static int[] getPosition(Figure f) {
 		int[] i = {0,0};
 		for(int y = 0; y < 8; y++) {
@@ -51,12 +76,6 @@ public class Field {
 		startField[yNew][xNew] = f;
 	}
 	
-	public static void moveFigureBack(int xOld, int yOld, int xNew, int yNew) {
-		Figure f = startField[yNew][xNew];
-		startField[yNew][xNew] = null;
-		startField[yOld][xOld] = f;
-	}
-	
 	public static boolean fieldEmpty(int x,int y) {
 		if(startField[y][x] == null) {
 			return true;
@@ -66,9 +85,6 @@ public class Field {
 	}
 	
 	public static boolean myFigure(int x, int y, Player p) { 
-		if(startField[y][x] == null) {
-			return false;
-		}
 		for(int i = 0; i < 16; i++) {
 			if(p == p1) {
 				if(startField[y][x] == p1Figures[i]) {

@@ -4,10 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import gui.Game;
+import gui.Listeners;
 
 public class Moves {
-	
-	public static ArrayList<int[]> markedFields = new ArrayList<>();
 	
 	public static void markSurround(int x, int y, Player p) {
 		if(!atWall(x, y-1) && !Field.myFigure(x, y-1, p)) {
@@ -62,18 +61,38 @@ public class Moves {
 	public static void markSideStep(int x, int y, Player p, boolean save) {
 		if(p == Field.p1) {
 			if(!atWall(x+1, y-1) && !Field.fieldEmpty(x+1, y-1) && !Field.myFigure(x+1, y-1, p)) {
-				Game.fields[x+1][y-1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x+1,y-1};
+					Listeners.markedFields.add(i);
+				}else {
+					Game.fields[x+1][y-1].setBackground(Color.gray);
+				}
 			}
 			if(!atWall(x-1, y-1) &&!Field.fieldEmpty(x-1, y-1) && !Field.myFigure(x-1, y-1, p)) {
-				Game.fields[x-1][y-1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x-1,y-1};
+					Listeners.markedFields.add(i);
+				}else {
+					Game.fields[x-1][y-1].setBackground(Color.gray);
+				}
 			}
 		}
 		if(p == Field.p2) {
 			if(!atWall(x+1, y+1) && !Field.fieldEmpty(x+1, y+1) && !Field.myFigure(x+1, y+1, p)) {
-				Game.fields[x+1][y+1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x+1,y+1};
+					Listeners.markedFields.add(i);
+				}else {
+					Game.fields[x+1][y+1].setBackground(Color.gray);
+				}
 			}
 			if(!atWall(x-1, y+1) &&!Field.fieldEmpty(x-1, y+1) && !Field.myFigure(x-1, y+1, p)) {
-				Game.fields[x-1][y+1].setBackground(Color.gray);
+				if(save) {
+					int[] i = {x-1,y+1};
+					Listeners.markedFields.add(i);
+				}else {
+					Game.fields[x-1][y+1].setBackground(Color.gray);
+				}
 			}
 		}
 	}
@@ -132,7 +151,7 @@ public class Moves {
 			yPos++;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}	
@@ -144,7 +163,7 @@ public class Moves {
 			yPos--;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -156,7 +175,7 @@ public class Moves {
 			yPos++;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -168,7 +187,7 @@ public class Moves {
 			yPos--;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -180,7 +199,7 @@ public class Moves {
 			yPos = yPos-2;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -192,7 +211,7 @@ public class Moves {
 			yPos = yPos-2;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -204,7 +223,7 @@ public class Moves {
 			yPos = yPos+2;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -216,7 +235,7 @@ public class Moves {
 			yPos = yPos+2;
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}
@@ -229,22 +248,19 @@ public class Moves {
 		while(xPos+1 <= 7 && yPos-1 >= 0) {
 			xPos++;
 			yPos--;
-			if(xPos!= x && yPos != y) {
-				boolean b = checkMove(xPos, yPos, p, save);
-				if(b) {
-					break;
-				}	
+			boolean b = checkMove(xPos, yPos, p, save);
+			if(b) {
+				break;
 			}
 		}
-	
+		xPos = x;
+		yPos = y;
 		while(xPos-1 >= 0 && yPos+1 <= 7) {
 			xPos--;
 			yPos++;
-			if(xPos!= x && yPos != y) {
-				boolean b = checkMove(xPos, yPos, p, save);
-				if(b) {
-					break;
-				}
+			boolean b = checkMove(xPos, yPos, p, save);
+			if(b) {
+				break;
 			}
 		}
 		
@@ -253,11 +269,9 @@ public class Moves {
 		while(xPos-1 >= 0 && yPos-1 >= 0) {
 			xPos--;
 			yPos--;
-			if(xPos!= x && yPos != y) {
-				boolean b = checkMove(xPos, yPos, p, save);
-				if(b) {
-					break;
-				}
+			boolean b = checkMove(xPos, yPos, p, save);
+			if(b) {
+				break;
 			}
 		}
 		xPos = x;
@@ -265,11 +279,9 @@ public class Moves {
 		while(xPos+1 <= 7 && yPos+1 <= 7) {
 			xPos++;
 			yPos++;
-			if(xPos!= x && yPos != y) {
-				boolean b = checkMove(xPos, yPos, p, save);
-				if(b) {
-					break;
-				}
+			boolean b = checkMove(xPos, yPos, p, save);
+			if(b) {
+				break;
 			}
 		}
 	}
@@ -281,16 +293,17 @@ public class Moves {
 			}else {
 				if(save) {
 					int[] i = {xPos,yPos};
-					markedFields.add(i);
+					Listeners.markedFields.add(i);
+					return true;
 				}else {
 					Game.fields[xPos][yPos].setBackground(Color.gray);
+					return true;
 				}		
-				return true;
 			}
 		}else {
 			if(save) {
 				int[] i = {xPos,yPos};
-				markedFields.add(i);
+				Listeners.markedFields.add(i);
 			}else {
 				Game.fields[xPos][yPos].setBackground(Color.gray);
 			}

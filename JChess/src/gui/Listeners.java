@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -15,10 +16,11 @@ import utils.Player;
 
 
 public class Listeners implements MouseListener, ActionListener{
-	
+	Figure savedFigure = null;
 	Figure choosedFigure;
 	int[] choosedFigurePosition = new int[2];
 	boolean player1 = true;
+	public static ArrayList<int[]> markedFields = new ArrayList<>();
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -62,60 +64,78 @@ public class Listeners implements MouseListener, ActionListener{
 			Game.fields[x][y].setBackground(Color.darkGray);
 			markFields(choosedFigure, x, y, p);
 		}if(choosedFigure != null && !Field.myFigure(x, y, p) && Game.fields[x][y].getBackground() == Color.gray) {
+			if(!Field.fieldEmpty(x, y)) {
+				savedFigure = Field.getFigure(x, y);
+			}
 			Game.move(choosedFigurePosition[0], choosedFigurePosition[1], x, y, p);
 			Field.moveFigure(choosedFigurePosition[0], choosedFigurePosition[1], x, y);
-			Game.repaintField();
+			if(checkChess(p, Field.getPosition(p.King))) {
+				Game.move(x, y, choosedFigurePosition[0], choosedFigurePosition[1], p);
+				Field.moveFigure(x, y, choosedFigurePosition[0], choosedFigurePosition[1]);
+				if(savedFigure != null) {
+					Field.addFigure(savedFigure, x, y);
+					if(player1) {
+						Game.addFigure(savedFigure, x, y, Field.p2);
+					}else {
+						Game.addFigure(savedFigure, x, y, Field.p1);
+					}
+				}
+				JOptionPane.showMessageDialog(null, "man darf nicht ins Schach ziehen");
+				return;
+			}
 			if(player1) {
 				player1 = false;
 			}else {
 				player1 = true;
 			}
-			choosedFigure.firstTurn = false;
 			if(p == Field.p1) {
-				if(checkChess(Field.p2)) {
+				if(checkChess(Field.p2, Field.getPosition(Field.p2.King))) {
 					JOptionPane.showMessageDialog(null, "Schach");
 				}
 			}else {
-				if(checkChess(Field.p1)) {
+				if(checkChess(Field.p1, Field.getPosition(Field.p1.King))) {
 					JOptionPane.showMessageDialog(null, "Schach");
 				}
 			}
+			choosedFigure.firstTurn = false;
+			savedFigure = null;
+			Game.repaintBackground();
+			Game.repaintField();
 		}
 	}
 	
-	private boolean checkChess(Player p) {
-		int[] kingPos = Field.getPosition(p.King);
+	
+	public boolean checkChess(Player p, int[] kingPos) {
 		Moves.markCross(kingPos[1], kingPos[0], p, true);
 		boolean chess = getChess('C',p);
+		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markedFields.clear();
 		Moves.markJump(kingPos[1], kingPos[0], p, true);
 		chess = getChess('J',p);
+		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markedFields.clear();
 		Moves.markLine(kingPos[1], kingPos[0], p, true);
 		chess = getChess('L',p);
+		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markedFields.clear();
 		Moves.markSideStep(kingPos[1], kingPos[0], p, true);
 		chess = getChess('S',p);
+		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markedFields.clear();
-		Game.repaintBackground();
 		return false;
 	}
-	
+
 	private boolean getChess(char c, Player p) {
-		for(int nr = 0; nr < Moves.markedFields.size(); nr++) {
-			int[] i = Moves.markedFields.get(nr);
+		for(int j = 0; j < markedFields.size(); j++) {
+			int[] i = markedFields.get(j);
 			if(!Field.fieldEmpty(i[0], i[1]) && !Field.myFigure(i[0], i[1], p)) {
 				Figure f = Field.getFigure(i[0], i[1]);
 				if(f.canCross && c == 'C') {
@@ -134,7 +154,7 @@ public class Listeners implements MouseListener, ActionListener{
 		}
 		return false;
 	}
-	
+
 	private void markFields(Figure f, int x,int y, Player p) {
 		if(f.canCross) {
 			Moves.markCross(x,y, p, false);
