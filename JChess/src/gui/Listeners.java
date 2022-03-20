@@ -21,6 +21,7 @@ public class Listeners implements MouseListener, ActionListener{
 	int[] choosedFigurePosition = new int[2];
 	boolean player1 = true;
 	public static ArrayList<int[]> markedFields = new ArrayList<>();
+	public static boolean chess = false;
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -69,7 +70,9 @@ public class Listeners implements MouseListener, ActionListener{
 			}
 			Game.move(choosedFigurePosition[0], choosedFigurePosition[1], x, y, p);
 			Field.moveFigure(choosedFigurePosition[0], choosedFigurePosition[1], x, y);
+			System.out.println("Field.moveFigure(" + choosedFigurePosition[0] + ", " + choosedFigurePosition[1] + ", " + x + ", " + y + ");");
 			if(checkChess(p, Field.getPosition(p.King))) {
+				chess = true;
 				Game.move(x, y, choosedFigurePosition[0], choosedFigurePosition[1], p);
 				Field.moveFigure(x, y, choosedFigurePosition[0], choosedFigurePosition[1]);
 				if(savedFigure != null) {
@@ -83,6 +86,7 @@ public class Listeners implements MouseListener, ActionListener{
 				JOptionPane.showMessageDialog(null, "man darf nicht ins Schach ziehen");
 				return;
 			}
+			chess = false;
 			if(player1) {
 				player1 = false;
 			}else {
@@ -91,10 +95,12 @@ public class Listeners implements MouseListener, ActionListener{
 			if(p == Field.p1) {
 				if(checkChess(Field.p2, Field.getPosition(Field.p2.King))) {
 					JOptionPane.showMessageDialog(null, "Schach");
+					chess = true;
 				}
 			}else {
 				if(checkChess(Field.p1, Field.getPosition(Field.p1.King))) {
 					JOptionPane.showMessageDialog(null, "Schach");
+					chess = true;
 				}
 			}
 			choosedFigure.firstTurn = false;
@@ -105,38 +111,43 @@ public class Listeners implements MouseListener, ActionListener{
 	}
 	
 	
-	public boolean checkChess(Player p, int[] kingPos) {
-		Moves.markCross(kingPos[1], kingPos[0], p, true);
+	public static boolean checkChess(Player p, int[] kingPos) {
+		Moves.markCross(kingPos[0], kingPos[1], p, true);
 		boolean chess = getChess('C',p);
 		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markJump(kingPos[1], kingPos[0], p, true);
+		Moves.markJump(kingPos[0], kingPos[1], p, true);
 		chess = getChess('J',p);
 		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markLine(kingPos[1], kingPos[0], p, true);
+		Moves.markLine(kingPos[0], kingPos[1], p, true);
 		chess = getChess('L',p);
 		markedFields.clear();
 		if(chess) {
 			return true;
 		}
-		Moves.markSideStep(kingPos[1], kingPos[0], p, true);
+		Moves.markSideStep(kingPos[0], kingPos[1], p, true);
 		chess = getChess('S',p);
 		markedFields.clear();
+		if(chess) {
+			return true;
+		}
+		Moves.markSurround(kingPos[0], kingPos[1], p, true);
+		chess = getChess('K', p);
 		if(chess) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean getChess(char c, Player p) {
+	private static boolean getChess(char c, Player p) {
 		for(int j = 0; j < markedFields.size(); j++) {
 			int[] i = markedFields.get(j);
-			if(!Field.fieldEmpty(i[0], i[1]) && !Field.myFigure(i[0], i[1], p)) {
+			if(!Field.fieldEmpty(i[0], i[1]) && (!Field.myFigure(i[0], i[1], p))) {
 				Figure f = Field.getFigure(i[0], i[1]);
 				if(f.canCross && c == 'C') {
 					return true;
@@ -148,6 +159,9 @@ public class Listeners implements MouseListener, ActionListener{
 					return true;
 				}
 				if(f.canSideStep && c == 'S') {
+					return true;
+				}
+				if(f.canSurround && c == 'K') {
 					return true;
 				}
 			}
@@ -172,7 +186,7 @@ public class Listeners implements MouseListener, ActionListener{
 			Moves.markStep(x,y,p, f.firstTurn);
 		}
 		if(f.canSurround) {
-			Moves.markSurround(x,y,p);
+			Moves.markSurround(x,y,p, false);
 		}
 	}
 	

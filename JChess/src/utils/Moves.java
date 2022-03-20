@@ -1,40 +1,102 @@
+
+  
 package utils;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
 import gui.Game;
 import gui.Listeners;
 
 public class Moves {
 	
-	public static void markSurround(int x, int y, Player p) {
+	public static void markSurround(int x, int y, Player p, boolean save) {
+		if(!save) {
+			Field.removeFigure(x, y);
+		}
 		if(!atWall(x, y-1) && !Field.myFigure(x, y-1, p)) {
-			Game.fields[x][y-1].setBackground(Color.gray);
+			int[] i = {x,y-1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x][y-1].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x+1, y-1) && !Field.myFigure(x+1, y-1, p)) {
-			Game.fields[x+1][y-1].setBackground(Color.gray);
+			int[] i = {x+1,y-1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x+1][y-1].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x-1, y-1)&& !Field.myFigure(x-1, y-1, p)) {
-			Game.fields[x-1][y-1].setBackground(Color.gray);
+			int[] i = {x-1,y-1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x-1][y-1].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x+1, y)&& !Field.myFigure(x+1, y, p)) {
-			Game.fields[x+1][y].setBackground(Color.gray);
+			int[] i = {x+1,y};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x+1][y].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x-1, y)&& !Field.myFigure(x-1, y, p)) {
-			Game.fields[x-1][y].setBackground(Color.gray);
+			int[] i = {x-1,y};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x-1][y].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x, y+1)&& !Field.myFigure(x, y+1, p)) {
-			Game.fields[x][y+1].setBackground(Color.gray);
+			int[] i = {x,y+1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x][y+1].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x+1, y+1)&& !Field.myFigure(x+1, y+1, p)) {
-			Game.fields[x+1][y+1].setBackground(Color.gray);
+			int[] i = {x+1,y+1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x+1][y+1].setBackground(Color.gray);
+				}
+			}
 		}
 		if(!atWall(x-1, y+1)&& !Field.myFigure(x-1, y+1, p)) {
-			Game.fields[x-1][y+1].setBackground(Color.gray);
+			int[] i = {x-1,y+1};
+			if(save) {
+				Listeners.markedFields.add(i);
+			}else {
+				if(!Listeners.checkChess(p, i)) {
+					Game.fields[x-1][y+1].setBackground(Color.gray);
+				}
+			}
+		}
+		if(!save) {
+			Field.addFigure(p.King, x, y);
 		}
 	}
-
 	public static void markStep(int x, int y, Player p, boolean firstTurn) {
 		if(p == Field.p1) {
 			if(Field.fieldEmpty(x, y-1)) {
